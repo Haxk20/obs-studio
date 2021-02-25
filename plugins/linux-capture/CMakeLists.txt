@@ -44,8 +44,46 @@ set(linux-capture_LIBRARIES
 	${XCB_LIBRARIES}
 )
 
+option(ENABLE_PIPEWIRE "Enable PipeWire support" ON)
+if(ENABLE_PIPEWIRE)
+	find_package(PipeWire REQUIRED)
+	find_package(Gio REQUIRED)
+
+	set(linux-capture_INCLUDES
+		${linux-capture_INCLUDES}
+		${GIO_INCLUDE_DIRS}
+		${PIPEWIRE_INCLUDE_DIRS}
+	)
+
+	add_definitions(
+		${GIO_DEFINITIONS}
+		${PIPEWIRE_DEFINITIONS}
+	)
+
+	set(linux-capture_SOURCES
+		${linux-capture_SOURCES}
+		pipewire.c
+		pipewire-capture.c
+	)
+	set(linux-capture_HEADERS
+		${linux-capture_HEADERS}
+		pipewire.h
+		pipewire-capture.h
+	)
+	set(linux-capture_LIBRARIES
+		${linux-capture_LIBRARIES}
+		${GIO_LIBRARIES}
+		${PIPEWIRE_LIBRARIES}
+	)
+endif()
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/linux-capture-config.h.in"
+	"${CMAKE_BINARY_DIR}/linux-capture-config.h")
+
 include_directories(SYSTEM
 	${linux-capture_INCLUDES}
+	${CMAKE_BINARY_DIR}
 )
 add_library(linux-capture MODULE
 	${linux-capture_SOURCES}
